@@ -113,7 +113,7 @@ export const BrandDashboard: React.FC = () => {
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
-      currency: 'USD',
+      currency: 'NGN',
       minimumFractionDigits: 0
     }).format(amount);
   };
@@ -164,7 +164,9 @@ export const BrandDashboard: React.FC = () => {
               </select>
               <Button variant="primary" className="flex items-center gap-2">
                 <Plus className="w-4 h-4" />
-                New Campaign
+                <a href="/create-mission" className="text-white no-underline">
+                  New Campaign
+                </a>
               </Button>
             </div>
           </div>
