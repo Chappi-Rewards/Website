@@ -3,7 +3,7 @@ import { COLORS } from '../../utils/constants';
 
 interface ButtonProps {
   children: React.ReactNode;
-  variant?: 'primary' | 'secondary' | 'outline' | 'ghost';
+  variant?: 'primary' | 'secondary' | 'outline' | 'ghost'|  'cancel';
   size?: 'sm' | 'md' | 'lg';
   onClick?: () => void;
   className?: string;
@@ -26,7 +26,9 @@ export const Button: React.FC<ButtonProps> = ({
     primary: `bg-blue-600 text-white hover:bg-blue-700 hover:shadow-xl focus:ring-blue-300 border-2 border-blue-600`,
     secondary: `text-blue-900 hover:shadow-xl focus:ring-amber-300 border-2`,
     outline: `border-2 text-white hover:text-blue-900 hover:shadow-xl focus:ring-amber-300 bg-transparent backdrop-blur-sm hover:bg-white`,
-    ghost: 'text-white hover:bg-white/10 focus:ring-white/30'
+    ghost: 'text-white hover:bg-white/10 focus:ring-white/30',
+    cancel: `bg-yellow-600  border-2 text-white hover:text-yellow-900 hover:shadow-xl focus:ring-yellow-300 bg-transparent backdrop-blur-sm hover:bg-yellow`,
+
   };
 
   // Apply colors from constants
@@ -42,6 +44,13 @@ export const Button: React.FC<ButtonProps> = ({
         return {
           borderColor: COLORS.secondary,
           color: COLORS.text.light
+        };
+        case 'cancel':
+        return {
+          borderColor: COLORS.secondary,
+          // color: COLORS.text.light
+          backgroundColor:COLORS.secondary, 
+          color: COLORS.text.primary 
         };
       default:
         return {

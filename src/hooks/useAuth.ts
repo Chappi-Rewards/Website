@@ -12,6 +12,14 @@ interface AuthState {
   user: User | null;
   isLoading: boolean;
   isAuthenticated: boolean;
+  first_name?: string;
+  last_name?: string;
+  company?: string;
+  phone_number?: string;
+  country?: string;
+  email?: string;
+  password?: string;
+  accountType?: 'user' | 'brand';
 }
 
 export const useAuth = () => {
@@ -93,6 +101,17 @@ export const useAuth = () => {
     try {
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 2000));
+      const data = 
+        { 
+          email: userData.email, 
+          password: userData.password, 
+          phone_number: userData.phone_number, 
+          name: userData.company ?? userData.first_name + ' ' + userData.last_name, 
+          role: userData.accountType, 
+          first_name: userData.firstName, 
+          last_name: userData.lastName, 
+          country: userData.country, 
+        }
       
       const newUser: User = {
         id: Date.now().toString(),

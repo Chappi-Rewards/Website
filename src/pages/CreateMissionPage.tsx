@@ -14,7 +14,8 @@ import {
   Plus,
   X,
   Search,
-  Package
+  Package,
+  Gift
 } from 'lucide-react';
 import { Button } from '../components/ui/Button';
 import { LoadingSpinner } from '../components/ui/LoadingSpinner';
@@ -40,6 +41,7 @@ interface MissionFormData {
   targetCountries: string[];
   missionType: 'purchase' | 'review' | 'social' | 'visit';
   budget: number;
+  maxParticipants: number;
 }
 
 interface FormErrors {
@@ -69,6 +71,7 @@ export const CreateMissionPage: React.FC = () => {
     targetCountries: [],
     missionType: 'purchase',
     budget: 1000,
+    maxParticipants: 0,
   });
 
   const availableCountries = [
@@ -678,10 +681,10 @@ export const CreateMissionPage: React.FC = () => {
           <div className="flex flex-col md:flex-row gap-4 justify-end">
             <Button
               type="button"
-              variant="outline"
+              variant="cancel"
               onClick={() => navigate('/brand-dashboard')}
               disabled={isSubmitting}
-              className="w-full md:w-auto"
+              className="px-4 md:px-6 py-3 rounded-lg font-semibold transition-colors min-h-[44px] touch-manipulation" 
             >
               Cancel
             </Button>
