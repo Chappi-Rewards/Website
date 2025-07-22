@@ -11,7 +11,7 @@ const apiClient = axios.create({
 apiClient.interceptors.request.use(
   (config) => {
     // You can get the token from local storage, a cookie, etc.
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('chappi_token');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }

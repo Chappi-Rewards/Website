@@ -255,29 +255,24 @@ export const CreateMissionPage: React.FC = () => {
     };
 
     try {
-      const missionResponse = await http.post('/missions', apiPayload);
-      const missionId = missionResponse.data.id; // Assuming the mission creation returns the mission ID
-
-      // Now, initiate payment for the created mission
-      const paymentInitiationResponse = await http.post('/missions/initiate-payment', {
-        missionId: missionId,
-        amount: formData.budget, // Use the mission budget as the payment amount
-        // Add any other necessary payment details like email, callback_url
-        callback_url: `${window.location.origin}/brand-dashboard` // Paystack will redirect here
-      });
-
-      const paystackAuthUrl = paymentInitiationResponse.data.paystack_auth_url;
-
-      if (paystackAuthUrl) {
-        window.location.href = paystackAuthUrl; // Redirect to Paystack
+      const response = await http.post('/missions', apiPayload);
+      
+      if (response.data && response.data.authorization_url) {
+        setSubmitStatus('success');
+        setSubmitMessage('Mission created successfully! Redirecting to payment...');
+        window.location.href = response.data.authorization_url; // Redirect to Paystack
       } else {
-        throw new Error('Paystack authorization URL not received.');
+        setSubmitStatus('success'); // Still a success, but no payment needed or handled differently
+        setSubmitMessage('Mission created successfully. No immediate payment required.');
+        setTimeout(() => {
+          navigate('/brand-dashboard');
+        }, 2000);
       }
       
     } catch (error: any) {
-      console.error('Error creating mission or initiating payment:', error);
+      console.error('Error creating mission:', error);
       setSubmitStatus('error');
-      setSubmitMessage(error?.response?.data?.message || 'Failed to create mission or initiate payment. Please try again.');
+      setSubmitMessage(error?.response?.data?.message || 'Failed to create mission. Please try again.');
     } finally {
       setIsSubmitting(false);
     }
