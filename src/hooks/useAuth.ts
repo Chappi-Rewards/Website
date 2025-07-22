@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { http } from '../services/https';
 
 interface User {
   id: string;
@@ -12,41 +13,32 @@ interface AuthState {
   user: User | null;
   isLoading: boolean;
   isAuthenticated: boolean;
-  first_name?: string;
-  last_name?: string;
-  company?: string;
-  phone_number?: string;
-  country?: string;
-  email?: string;
-  password?: string;
-  accountType?: 'user' | 'brand';
 }
 
 export const useAuth = () => {
   const [authState, setAuthState] = useState<AuthState>({
     user: null,
     isLoading: true,
-    isAuthenticated: false
+    isAuthenticated: false,
   });
 
   useEffect(() => {
-    // Check for existing session
     const checkAuth = () => {
       try {
         const storedUser = localStorage.getItem('chappi_user');
         const token = localStorage.getItem('chappi_token');
-        
+
         if (storedUser && token) {
           setAuthState({
             user: JSON.parse(storedUser),
             isLoading: false,
-            isAuthenticated: true
+            isAuthenticated: true,
           });
         } else {
           setAuthState({
             user: null,
             isLoading: false,
-            isAuthenticated: false
+            isAuthenticated: false,
           });
         }
       } catch (error) {
@@ -54,7 +46,7 @@ export const useAuth = () => {
         setAuthState({
           user: null,
           isLoading: false,
-          isAuthenticated: false
+          isAuthenticated: false,
         });
       }
     };
@@ -63,78 +55,97 @@ export const useAuth = () => {
   }, []);
 
   const login = async (email: string, password: string) => {
-    setAuthState(prev => ({ ...prev, isLoading: true }));
-    
+    setAuthState((prev) => ({ ...prev, isLoading: true }));
+
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      const mockUser: User = {
-        id: Date.now().toString(),
+      const response = await http.post<{ token: string }>('/auth/login', {
         email,
-        firstName: 'John',
-        lastName: 'Doe',
-        accountType: 'user'
-      };
-      
-      const mockToken = 'mock_jwt_token_' + Date.now();
-      
-      localStorage.setItem('chappi_user', JSON.stringify(mockUser));
-      localStorage.setItem('chappi_token', mockToken);
-      
-      setAuthState({
-        user: mockUser,
-        isLoading: false,
-        isAuthenticated: true
+        password,
       });
-      
+      const { token } = response.data;
+
+      // Assuming the token contains user info or we fetch it separately
+      // For now, creating a placeholder user
+      const user: User = {
+        id: '', // This should be fetched or decoded from token
+        email,
+        firstName: 'User', // Placeholder
+        lastName: '', // Placeholder
+        accountType: 'user', // Placeholder
+      };
+
+      localStorage.setItem('chappi_user', JSON.stringify(user));
+      localStorage.setItem('chappi_token', token);
+
+      setAuthState({
+        user,
+        isLoading: false,
+        isAuthenticated: true,
+      });
+
       return { success: true };
     } catch (error) {
-      setAuthState(prev => ({ ...prev, isLoading: false }));
+      setAuthState((prev) => ({ ...prev, isLoading: false }));
       throw error;
     }
   };
 
   const signup = async (userData: any) => {
-    setAuthState(prev => ({ ...prev, isLoading: true }));
+    setAuthState((prev) => ({ ...prev, isLoading: true }));
+    console.log('Signup data:', userData);
     
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      const data = 
-        { 
-          email: userData.email, 
-          password: userData.password, 
-          phone_number: userData.phone_number, 
-          name: userData.company ?? userData.first_name + ' ' + userData.last_name, 
-          role: userData.accountType, 
-          first_name: userData.firstName, 
-          last_name: userData.lastName, 
-          country: userData.country, 
-        }
-      
-      const newUser: User = {
-        id: Date.now().toString(),
-        email: userData.email,
-        firstName: userData.firstName,
-        lastName: userData.lastName,
-        accountType: userData.accountType || 'user'
-      };
-      
-      const mockToken = 'mock_jwt_token_' + Date.now();
-      
-      localStorage.setItem('chappi_user', JSON.stringify(newUser));
-      localStorage.setItem('chappi_token', mockToken);
-      
-      setAuthState({
-        user: newUser,
-        isLoading: false,
-        isAuthenticated: true
+      const {
+        email,
+        password,
+        phone,
+        company,
+        firstName,
+        lastName,
+        accountType,
+        country,
+      } = userData;
+
+      const role = accountType === 'user' ? 'customer' : accountType;
+      const name = company || `${firstName} ${lastName}`;
+
+      await http.post('/auth/register', {
+        email,
+        password,
+        phone_number: phone,
+        name,
+        role,
+        first_name: firstName,
+        last_name: lastName,
+        country,
       });
-      
-      return { success: true, user: newUser };
+
+      // After successful registration, log the user in
+      const loginResponse = await login(email, password);
+
+      if (loginResponse.success) {
+        const newUser: User = {
+          id: '', // This should be fetched or decoded from token
+          email,
+          firstName,
+          lastName,
+          accountType,
+        };
+
+        localStorage.setItem('chappi_user', JSON.stringify(newUser));
+        
+        setAuthState((prev) => ({
+          ...prev,
+          user: newUser,
+          isLoading: false,
+          isAuthenticated: true,
+        }));
+        return { success: true, user: newUser };
+      } else {
+        throw new Error('Signup succeeded but login failed.');
+      }
     } catch (error) {
-      setAuthState(prev => ({ ...prev, isLoading: false }));
+      setAuthState((prev) => ({ ...prev, isLoading: false, isAuthenticated: false, user: null }));
       throw error;
     }
   };
@@ -145,7 +156,7 @@ export const useAuth = () => {
     setAuthState({
       user: null,
       isLoading: false,
-      isAuthenticated: false
+      isAuthenticated: false,
     });
   };
 
@@ -153,6 +164,6 @@ export const useAuth = () => {
     ...authState,
     login,
     signup,
-    logout
+    logout,
   };
 };
