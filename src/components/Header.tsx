@@ -84,18 +84,19 @@ export const Header: React.FC = () => {
               />
             </Link>
           </div>
-
-          <nav className="hidden md:flex items-center space-x-6">
-            {menuItems.map((item) => (
-              <Link 
-                key={item.path}
-                to={item.path}
-                className={`nav-link font-medium text-sm relative ${isActive(item.path) ? 'nav-link-active' : ''}`}>
-                {item.label}
-                <span className="nav-sparkle"></span>
-              </Link>
-            ))}
-          </nav>
+          <div hidden={isAuthenticated}>
+            <nav className="hidden md:flex items-center space-x-6"  hidden>
+              {menuItems.map((item) => (
+                <Link 
+                  key={item.path}
+                  to={item.path}
+                  className={`nav-link font-medium text-sm relative ${isActive(item.path) ? 'nav-link-active' : ''}`}>
+                  {item.label}
+                  <span className="nav-sparkle"></span>
+                </Link>
+              ))}
+            </nav>
+          </div>
 
           <div className="hidden md:flex items-center space-x-4">
             <div className="relative">
