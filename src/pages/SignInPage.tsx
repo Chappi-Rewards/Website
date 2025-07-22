@@ -6,8 +6,6 @@ import {
   EyeOff,
   AlertCircle,
   ArrowRight,
-  CheckCircle,
-  Zap,
 } from 'lucide-react';
 import { Button } from '../components/ui/Button';
 import { LoadingSpinner } from '../components/ui/LoadingSpinner';
@@ -122,7 +120,7 @@ export const SignInPage: React.FC = () => {
                   <select
                     id="accountType"
                     value={accountType}
-                    onChange={e => setAccountType(e.target.value as any)}
+                    onChange={e => setAccountType(e.target.value as 'brand' | 'user')}
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   >
                     <option value="brand">Brand / Agency</option>

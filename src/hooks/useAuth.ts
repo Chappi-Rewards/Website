@@ -25,8 +25,8 @@ export const useAuth = () => {
   useEffect(() => {
     const checkAuth = () => {
       try {
-        const storedUser = localStorage.getItem('chappi_user');
-        const token = localStorage.getItem('chappi_token');
+        const storedUser = localStorage.getItem('chappi_user') || sessionStorage.getItem('chappi_user');
+        const token = localStorage.getItem('chappi_token') || sessionStorage.getItem('chappi_token');
 
         if (storedUser && token) {
           setAuthState({
@@ -54,28 +54,44 @@ export const useAuth = () => {
     checkAuth();
   }, []);
 
-  const login = async (email: string, password: string) => {
+  const signin = async ({
+    accountType,
+    email,
+    password,
+    rememberMe,
+  }: {
+    accountType: 'user' | 'brand';
+    email: string;
+    password: string;
+    rememberMe: boolean;
+  }) => {
     setAuthState((prev) => ({ ...prev, isLoading: true }));
 
     try {
-      const response = await http.post<{ token: string }>('/auth/login', {
+      const response = await http.post<{ token: any, user:any }>('/auth/login', {
         email,
         password,
       });
-      const { token } = response.data;
+      const { token, user: userData } = response.data;
+      // const userData = response.data.user
 
-      // Assuming the token contains user info or we fetch it separately
-      // For now, creating a placeholder user
+      // In a real app, you'd decode the JWT to get user info
+      // Or fetch user profile from another endpoint
       const user: User = {
-        id: '', // This should be fetched or decoded from token
-        email,
-        firstName: 'User', // Placeholder
-        lastName: '', // Placeholder
-        accountType: 'user', // Placeholder
+        id: userData.id, // Placeholder, decode from token
+        email: userData.email,
+        firstName: userData.first_name, // Placeholder
+        lastName: userData.last_name, // Placeholder
+        accountType,
       };
 
-      localStorage.setItem('chappi_user', JSON.stringify(user));
-      localStorage.setItem('chappi_token', token);
+      if (rememberMe) {
+        localStorage.setItem('chappi_user', JSON.stringify(user));
+        localStorage.setItem('chappi_token', token);
+      } else {
+        sessionStorage.setItem('chappi_user', JSON.stringify(user));
+        sessionStorage.setItem('chappi_token', token);
+      }
 
       setAuthState({
         user,
@@ -84,13 +100,31 @@ export const useAuth = () => {
       });
 
       return { success: true };
-    } catch (error) {
+    } catch (error: any) {
       setAuthState((prev) => ({ ...prev, isLoading: false }));
-      throw error;
+      return { success: false, message: error.message || 'Login failed' };
     }
   };
 
-  const signup = async (userData: any) => {
+  const sendOtp = async (email: string) => {
+    console.log(`OTP sent to ${email}`);
+    // Mock implementation
+    return Promise.resolve(true);
+  };
+
+  const verifyOtp = async (email: string, otp: string) => {
+    console.log(`Verifying OTP ${otp} for ${email}`);
+    // Mock implementation
+    return Promise.resolve(otp === '123456'); // Dummy OTP
+  };
+
+  const resetPassword = async (email: string, newPassword?: string) => {
+    console.log(`Resetting password for ${email}`);
+    // Mock implementation
+    return Promise.resolve(true);
+  };
+
+  const signup = async (userData: Record<string, string>) => {
     setAuthState((prev) => ({ ...prev, isLoading: true }));
     console.log('Signup data:', userData);
     
@@ -120,8 +154,12 @@ export const useAuth = () => {
         country,
       });
 
-      // After successful registration, log the user in
-      const loginResponse = await login(email, password);
+      const loginResponse = await signin({
+        email,
+        password,
+        accountType: role as 'user' | 'brand',
+        rememberMe: true, // Or based on a checkbox in signup form
+      });
 
       if (loginResponse.success) {
         const newUser: User = {
@@ -129,7 +167,7 @@ export const useAuth = () => {
           email,
           firstName,
           lastName,
-          accountType,
+          accountType: role as 'user' | 'brand',
         };
 
         localStorage.setItem('chappi_user', JSON.stringify(newUser));
@@ -153,6 +191,8 @@ export const useAuth = () => {
   const logout = () => {
     localStorage.removeItem('chappi_user');
     localStorage.removeItem('chappi_token');
+    sessionStorage.removeItem('chappi_user');
+    sessionStorage.removeItem('chappi_token');
     setAuthState({
       user: null,
       isLoading: false,
@@ -162,8 +202,11 @@ export const useAuth = () => {
 
   return {
     ...authState,
-    login,
+    signin,
     signup,
     logout,
+    sendOtp,
+    verifyOtp,
+    resetPassword,
   };
 };
