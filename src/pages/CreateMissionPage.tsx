@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { http } from '../services/https';
 import { 
   Target, 
   Calendar, 
@@ -14,7 +15,8 @@ import {
   Plus,
   X,
   Search,
-  Package
+  Package,
+  Gift
 } from 'lucide-react';
 import { Button } from '../components/ui/Button';
 import { LoadingSpinner } from '../components/ui/LoadingSpinner';
@@ -40,6 +42,7 @@ interface MissionFormData {
   targetCountries: string[];
   missionType: 'purchase' | 'review' | 'social' | 'visit';
   budget: number;
+  maxParticipants: number;
 }
 
 interface FormErrors {
@@ -69,6 +72,7 @@ export const CreateMissionPage: React.FC = () => {
     targetCountries: [],
     missionType: 'purchase',
     budget: 1000,
+    maxParticipants: 0,
   });
 
   const availableCountries = [
@@ -105,18 +109,8 @@ export const CreateMissionPage: React.FC = () => {
   const loadBrandProducts = async () => {
     setIsLoading(true);
     try {
-      // Simulate API call to load brand's own products
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // Mock brand products - in real implementation, this would fetch from API based on brand ID
-      const brandProducts: Product[] = [
-        { id: '1', name: 'Premium Chocolate Bar 100g', brand: 'Your Brand', category: 'Confectionery', price: 850 },
-        { id: '2', name: 'Organic Green Tea 50g', brand: 'Your Brand', category: 'Beverages', price: 1200 },
-        { id: '3', name: 'Natural Body Lotion 250ml', brand: 'Your Brand', category: 'Personal Care', price: 2500 },
-        { id: '4', name: 'Vitamin C Tablets 30ct', brand: 'Your Brand', category: 'Health', price: 3200 },
-        { id: '5', name: 'Coconut Oil 500ml', brand: 'Your Brand', category: 'Food', price: 1800 },
-        { id: '6', name: 'Face Wash Gel 150ml', brand: 'Your Brand', category: 'Personal Care', price: 1500 }
-      ];
+      const response = await http.get<Product[]>('/products');
+      const brandProducts = response.data;
       
       setProducts(brandProducts);
       setFilteredProducts(brandProducts);
@@ -127,6 +121,7 @@ export const CreateMissionPage: React.FC = () => {
       setIsLoading(false);
     }
   };
+
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target;
@@ -249,31 +244,40 @@ export const CreateMissionPage: React.FC = () => {
     setIsSubmitting(true);
     setSubmitStatus('idle');
 
+    const apiPayload = {
+      name: formData.missionName,
+      budget: formData.budget,
+      description: formData.missionDescription,
+      points: formData.missionPoints,
+      startDate: formData.missionStartDate,
+      endDate: formData.missionEndDate,
+      productIds: formData.selectedMissionProducts.map(p => parseInt(p.id, 10)),
+    };
+
     try {
-      // Simulate API call to create mission
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      const missionResponse = await http.post('/missions', apiPayload);
+      const missionId = missionResponse.data.id; // Assuming the mission creation returns the mission ID
+
+      // Now, initiate payment for the created mission
+      const paymentInitiationResponse = await http.post('/missions/initiate-payment', {
+        missionId: missionId,
+        amount: formData.budget, // Use the mission budget as the payment amount
+        // Add any other necessary payment details like email, callback_url
+        callback_url: `${window.location.origin}/brand-dashboard` // Paystack will redirect here
+      });
+
+      const paystackAuthUrl = paymentInitiationResponse.data.paystack_auth_url;
+
+      if (paystackAuthUrl) {
+        window.location.href = paystackAuthUrl; // Redirect to Paystack
+      } else {
+        throw new Error('Paystack authorization URL not received.');
+      }
       
-      // In a real implementation, this would be an API call:
-      // const response = await fetch('/api/missions', {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify(formData)
-      // });
-      
-      console.log('Mission created:', formData);
-      
-      setSubmitStatus('success');
-      setSubmitMessage('Mission created successfully! It will be available to all users in your target countries.');
-      
-      // Redirect to dashboard after success
-      setTimeout(() => {
-        navigate('/brand-dashboard');
-      }, 2000);
-      
-    } catch (error) {
-      console.error('Error creating mission:', error);
+    } catch (error: any) {
+      console.error('Error creating mission or initiating payment:', error);
       setSubmitStatus('error');
-      setSubmitMessage('Failed to create mission. Please try again.');
+      setSubmitMessage(error?.response?.data?.message || 'Failed to create mission or initiate payment. Please try again.');
     } finally {
       setIsSubmitting(false);
     }
@@ -381,7 +385,7 @@ export const CreateMissionPage: React.FC = () => {
                 )}
               </div>
 
-              <div>
+              <div hidden>
                 <label htmlFor="missionType" className="block text-sm font-medium mb-2" style={{ color: COLORS.text.primary }}>
                   Mission Type *
                 </label>
@@ -678,10 +682,10 @@ export const CreateMissionPage: React.FC = () => {
           <div className="flex flex-col md:flex-row gap-4 justify-end">
             <Button
               type="button"
-              variant="outline"
+              variant="cancel"
               onClick={() => navigate('/brand-dashboard')}
               disabled={isSubmitting}
-              className="w-full md:w-auto"
+              className="px-4 md:px-6 py-3 rounded-lg font-semibold transition-colors min-h-[44px] touch-manipulation" 
             >
               Cancel
             </Button>

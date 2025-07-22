@@ -14,6 +14,8 @@ import { ChappsAccountPage } from './pages/ChappsAccountPage';
 import { UMIPPage } from './pages/UMIPPage';
 import { AdsBiddingPlatform } from './components/AdsEngine/AdsBiddingPlatform';
 import './styles/animations.css';
+import { CreateMissionPage } from './pages/CreateMissionPage';
+import { SignInPage } from './pages/SignInPage';
 
 function App() {
   // Add error boundary for debugging
@@ -48,9 +50,11 @@ function App() {
           <Route path="/brand-dashboard" element={<BrandDashboard />} />
           <Route path="/signup" element={<SignUpPage />} />
           <Route path="/user-signup" element={<UserSignUpPage />} />
+          <Route path="/signin" element={<SignInPage />} />
           <Route path="/create-account" element={<ChappsAccountPage />} />
           <Route path="/umip" element={<UMIPPage />} />
           <Route path="/ads-engine" element={<AdsBiddingPlatform />} />
+          <Route path="/create-mission" element={<CreateMissionPage />} />
         </Routes>
         <Footer />
       </div>
