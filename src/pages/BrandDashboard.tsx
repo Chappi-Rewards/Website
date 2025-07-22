@@ -1,19 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import { 
   BarChart3, 
-  TrendingUp, 
+  // TrendingUp, 
   Users, 
   Target, 
-  DollarSign, 
+  // DollarSign, 
   Plus,
   Play,
   Pause,
   Settings,
   Eye,
-  Calendar,
-  ArrowUp,
-  ArrowDown,
-  CheckCircle
+  // Calendar,
+  // ArrowUp,
+  // ArrowDown,
+  // CheckCircle
 } from 'lucide-react';
 import { Button } from '../components/ui/Button';
 import { COLORS, ICON_SIZES } from '../utils/constants';
