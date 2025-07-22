@@ -31,6 +31,7 @@ interface Campaign {
   };
   countries: string[];
   startDate: string;
+  paymentStatus?: 'pending' | 'paid' | 'failed' | 'unknown'; // Added payment status
 }
 
 interface Product {
@@ -87,6 +88,7 @@ export const BrandDashboard: React.FC = () => {
         },
         countries: ['Nigeria', 'Kenya', 'Ghana'].slice(0, Math.floor(Math.random() * 2) + 1),
         startDate: mission.start_date,
+        paymentStatus: mission.payment_status || 'unknown', // Assuming API returns payment_status
       };
     });
   };
@@ -96,24 +98,24 @@ export const BrandDashboard: React.FC = () => {
     return response.data;
   };
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-        const [campaignsData, productsData] = await Promise.all([
-          fetchCampaigns(),
-          fetchProducts(),
-        ]);
-        setCampaigns(campaignsData);
-        setProducts(productsData);
-      } catch (err: any) {
-        setError(err.message || 'An unexpected error occurred.');
-      } finally {
-        setLoading(false);
-      }
-    };
+  const fetchData = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const [campaignsData, productsData] = await Promise.all([
+        fetchCampaigns(),
+        fetchProducts(),
+      ]);
+      setCampaigns(campaignsData);
+      setProducts(productsData);
+    } catch (err: any) {
+      setError(err.message || 'An unexpected error occurred.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  useEffect(() => {
     const verifyPayment = async () => {
       const urlParams = new URLSearchParams(window.location.search);
       const trxref = urlParams.get('trxref');
@@ -121,14 +123,13 @@ export const BrandDashboard: React.FC = () => {
 
       if (trxref && reference) {
         try {
-          // Assuming /api/missions/verify-payment expects the reference
-          await http.post('/missions/verify-payment', { reference });
+          await http.get('/missions/verify-payment', { reference });
           alert('Payment verified successfully!');
+          fetchData(); // Re-fetch data to update campaign payment status
         } catch (err: any) {
           console.error('Payment verification failed:', err);
           alert(`Payment verification failed: ${err?.response?.data?.message || err.message}`);
         } finally {
-          // Clean the URL after verification attempt
           urlParams.delete('trxref');
           urlParams.delete('reference');
           window.history.replaceState({}, document.title, `${window.location.pathname}${urlParams.toString() ? `?${urlParams.toString()}` : ''}`);
@@ -284,6 +285,7 @@ export const BrandDashboard: React.FC = () => {
                 </div>
               )}
               {!loading && !error && campaigns.map((campaign) => (
+                <>
                 <div
                   key={campaign.id}
                   className="border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow"
@@ -295,11 +297,23 @@ export const BrandDashboard: React.FC = () => {
                           {campaign.name}
                         </h3>
                         <span
-                          className="px-3 py-1 rounded-full text-xs font-semibold text-white"
-                          style={{ backgroundColor: getStatusColor(campaign.status) }}
+                        className="px-3 py-1 rounded-full text-xs font-semibold text-white"
+                        style={{ backgroundColor: getStatusColor(campaign.status) }}
+                      >
+                        {campaign.status.charAt(0).toUpperCase() + campaign.status.slice(1)}
+                      </span>
+                      {campaign.paymentStatus && (
+                        <span
+                          className="px-3 py-1 rounded-full text-xs font-semibold"
+                          style={{
+                            backgroundColor: campaign.paymentStatus === 'paid' ? COLORS.success : (campaign.paymentStatus === 'failed' ? COLORS.error : COLORS.neutral),
+                            color: 'white'
+                          }}
                         >
-                          {campaign.status.charAt(0).toUpperCase() + campaign.status.slice(1)}
+                          Payment: {campaign.paymentStatus.charAt(0).toUpperCase() + campaign.paymentStatus.slice(1)}
                         </span>
+                      )}
+                    </div>
                       </div>
                       <p className="text-sm" style={{ color: COLORS.text.secondary }}>
                         {campaign.countries.join(', ')} • Started {new Date(campaign.startDate).toLocaleDateString()}
@@ -319,7 +333,6 @@ export const BrandDashboard: React.FC = () => {
                     </div>
                   </div>
 
-                  {/* Simplified Metrics */}
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
                     <div>
                       <p className="text-xs font-medium mb-1" style={{ color: COLORS.text.secondary }}>
@@ -371,7 +384,7 @@ export const BrandDashboard: React.FC = () => {
                       />
                     </div>
                   </div>
-                </div>
+                </>
               ))}
             </div>
           </div>

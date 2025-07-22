@@ -85,13 +85,14 @@ export const useAuth = () => {
         lastName: userData.last_name, // Placeholder
         accountType,
       };
-
       if (rememberMe) {
         localStorage.setItem('chappi_user', JSON.stringify(user));
         localStorage.setItem('chappi_token', token);
       } else {
         sessionStorage.setItem('chappi_user', JSON.stringify(user));
         sessionStorage.setItem('chappi_token', token);
+        localStorage.setItem('chappi_user', JSON.stringify(user));
+        localStorage.setItem('chappi_token', token);
       }
 
       setAuthState({
