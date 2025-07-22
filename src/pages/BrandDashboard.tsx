@@ -16,7 +16,7 @@ import {
   // CheckCircle
 } from 'lucide-react';
 import { Button } from '../components/ui/Button';
-import { COLORS, ICON_SIZES } from '../utils/constants';
+import { COLORS } from '../utils/constants';
 
 interface Campaign {
   id: string;
