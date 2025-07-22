@@ -346,7 +346,7 @@ Gets active missions for customers.
 
 ### `POST /api/missions`
 
-Creates a new mission.
+Creates a new mission and initiates a Paystack payment.
 
 **Request Body:**
 
@@ -358,12 +358,40 @@ Creates a new mission.
 | `startDate` | `string` | The mission's start date. |
 | `endDate` | `string` | The mission's end date. |
 | `productIds` | `number[]` | The IDs of the products in the mission. |
+| `budget` | `number` | The budget for the mission (amount to be paid via Paystack). |
 
 **Example Response:**
 
 ```json
 {
-  "message": "Mission created successfully."
+  "message": "Mission created successfully.",
+  "authorization_url": "https://paystack.com/pay/xxxxxxxxxx" 
+}
+```
+
+### `GET /api/missions/verify-payment`
+
+Verifies a Paystack payment for a mission.
+
+**Query Parameters:**
+
+| Parameter | Type | Description |
+| :--- | :--- | :--- |
+| `reference` | `string` | The Paystack transaction reference. |
+
+**Example Response (Success):**
+
+```json
+{
+  "message": "Payment verified successfully."
+}
+```
+
+**Example Response (Failure):**
+
+```json
+{
+  "error": "Payment verification failed."
 }
 ```
 

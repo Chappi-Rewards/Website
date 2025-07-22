@@ -48,7 +48,7 @@ apiClient.interceptors.response.use(
 
 export const http = {
   get: <T>(url: string, params?: object) => apiClient.get<T>(url, { params }),
-  post: <T>(url: string, data: object) => apiClient.post<T>(url, data),
+  post: <T>(url: string, data: object, headers?: object) => apiClient.post<T>(url, data, { headers }),
   put: <T>(url: string, data: object) => apiClient.put<T>(url, data),
   delete: <T>(url: string) => apiClient.delete<T>(url),
 };
