@@ -256,7 +256,7 @@ export const SignInPage: React.FC = () => {
                 <Link to="/forgot-password" className="hover:underline">
                   Forgot password?
                 </Link>
-                <Link to={accountType === 'brand' ? '/signup-brand' : '/signup-user'} className="hover:underline">
+                <Link to={accountType === 'brand' ? '/signup' : '/signup'} className="hover:underline">
                   Create Account
                 </Link>
               </div>

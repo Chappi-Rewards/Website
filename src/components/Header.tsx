@@ -9,7 +9,7 @@ export const Header: React.FC = () => {
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
-  const { isAuthenticated, user, logout } = useAuth();
+  const { isAuthenticated, user, logout, reload, setReload } = useAuth();
 
   const isActive = (path: string) => location.pathname === path;
 
@@ -54,6 +54,9 @@ export const Header: React.FC = () => {
     };
   }, [isMobileMenuOpen]);
 
+  useEffect(() => {
+    setReload(!reload)
+  }, [location.pathname])
   const menuItems = [
     { path: '/about', label: 'About', delay: '0.1s' },
     { path: '/missions', label: 'Missions', delay: '0.2s' },
@@ -62,13 +65,13 @@ export const Header: React.FC = () => {
   ];
 
   const handleWalletConnect = () => {
-    navigate('/user-signup');
-    setIsUserMenuOpen(false);
+    navigate('/signin');
+    toggleUserMenu()
   };
 
   const handleBrandLogin = () => {
-    navigate('/brand-dashboard');
-    setIsUserMenuOpen(false);
+    navigate('/signin');
+    toggleUserMenu();
   };
 
   return (
@@ -136,8 +139,8 @@ export const Header: React.FC = () => {
                     <ChevronDown className={`w-4 h-4 transition-transform duration-300 ${isUserMenuOpen ? 'rotate-180' : ''}`} />
                   </button>
                   {isUserMenuOpen && (
-                    <div className="signin-dropdown absolute right-0 top-full mt-2 w-64 bg-white rounded-lg shadow-xl border border-gray-200 py-2 z-50">
-                      <div className="px-4 py-2 border-b border-gray-100">
+                    <div className="user-menu absolute right-0 top-full mt-2 w-64 bg-white rounded-lg shadow-xl border border-gray-200 py-2 z-50">
+                     <div className="px-4 py-2 border-b border-gray-100">
                         <p className="text-sm font-medium text-gray-900">Choose your account type</p>
                       </div>
                       <button
@@ -152,10 +155,7 @@ export const Header: React.FC = () => {
                         </div>
                       </button>
                       <button
-                        onClick={() =>{
-                          handleBrandLogin();
-                          navigate('/brand-dashboard')
-                        }}
+                        onClick={handleBrandLogin}
                         className="w-full px-4 py-3 text-left hover:bg-gray-50 transition-colors flex items-center gap-3 min-h-[44px] touch-manipulation">
                         <div className="p-2 rounded-lg bg-blue-100">
                           <Building className="w-4 h-4 text-blue-600" />
@@ -165,10 +165,12 @@ export const Header: React.FC = () => {
                           <div className="text-sm text-gray-500">Access your campaign dashboard</div>
                         </div>
                       </button>
-                    </div>
+                  </div>
+                
                   )}
                 </div>
               )}
+              
             </div>
           </div>
 

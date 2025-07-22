@@ -21,6 +21,7 @@ export const useAuth = () => {
     isLoading: true,
     isAuthenticated: false,
   });
+  const [reload, setReload] = useState(false);
 
   useEffect(() => {
     const checkAuth = () => {
@@ -52,7 +53,7 @@ export const useAuth = () => {
     };
 
     checkAuth();
-  }, []);
+  }, [reload]);
 
   const signin = async ({
     accountType,
@@ -98,7 +99,6 @@ export const useAuth = () => {
         isLoading: false,
         isAuthenticated: true,
       });
-
       return { success: true };
     } catch (error: any) {
       setAuthState((prev) => ({ ...prev, isLoading: false }));
@@ -208,5 +208,7 @@ export const useAuth = () => {
     sendOtp,
     verifyOtp,
     resetPassword,
+    reload,
+    setReload,
   };
 };
