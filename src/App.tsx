@@ -17,6 +17,7 @@ import './styles/animations.css';
 import { CreateMissionPage } from './pages/CreateMissionPage';
 import { SignInPage } from './pages/SignInPage';
 import AccountDeletionPage from './pages/AccountDeletionPage';
+import PrivacyPolicyPage from './pages/PrivacyPolicyPage';
 
 function App() {
   // Add error boundary for debugging
@@ -57,6 +58,7 @@ function App() {
           <Route path="/ads-engine" element={<AdsBiddingPlatform />} />
           <Route path="/create-mission" element={<CreateMissionPage />} />
           <Route path="/account-deletion" element={<AccountDeletionPage />} />
+          <Route path="/privacy" element={<PrivacyPolicyPage />} />
         </Routes>
         <Footer />
       </div>
