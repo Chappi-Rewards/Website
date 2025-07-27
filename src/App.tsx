@@ -16,6 +16,7 @@ import { AdsBiddingPlatform } from './components/AdsEngine/AdsBiddingPlatform';
 import './styles/animations.css';
 import { CreateMissionPage } from './pages/CreateMissionPage';
 import { SignInPage } from './pages/SignInPage';
+import AccountDeletionPage from './pages/AccountDeletionPage';
 
 function App() {
   // Add error boundary for debugging
@@ -55,6 +56,7 @@ function App() {
           <Route path="/umip" element={<UMIPPage />} />
           <Route path="/ads-engine" element={<AdsBiddingPlatform />} />
           <Route path="/create-mission" element={<CreateMissionPage />} />
+          <Route path="/account-deletion" element={<AccountDeletionPage />} />
         </Routes>
         <Footer />
       </div>
