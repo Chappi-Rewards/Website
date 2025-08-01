@@ -21,6 +21,7 @@ const PrivacyPolicyPage = () => {
         <ul className="list-disc list-inside ml-4">
           <li><strong>Personal Data:</strong> Personally identifiable information, such as your name, email address, and password.</li>
           <li><strong>Demographic Information:</strong> Information such as your city, state, and country.</li>
+          <li><strong>Geolocation Information:</strong> For retailers, we collect your location data during the signup process to verify your business location.</li>
         </ul>
 
         <h2 className="text-2xl font-bold mt-6 mb-2">3. How We Use Your Information</h2>
@@ -29,6 +30,7 @@ const PrivacyPolicyPage = () => {
           <li>Create and manage your account.</li>
           <li>Email you regarding your account or order.</li>
           <li>Enable user-to-user communications.</li>
+          <li>Verify retailer locations.</li>
           {/* <li>Fulfill and manage purchases, orders, payments, and other transactions related to the Application.</li> */}
         </ul>
 
